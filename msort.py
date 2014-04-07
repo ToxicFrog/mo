@@ -9,6 +9,8 @@ import os
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.easyid3 import EasyID3
 
+from music import getID3ForFile, findMusic
+
 MUSIC_LIBRARY = '/orias/media/music/_sorted'
 MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
 
@@ -57,24 +59,6 @@ def parseArgs(argv):
   return paths or ['.']
 
 
-def getID3ForFile(file):
-  try:
-    id3 = EasyID3(file)
-  except ID3NoHeaderError:
-    id3 = EasyID3()
-  return ID3Wrapper(id3)
-
-
-def findMusic(paths):
-  def isMusic(file):
-    return file.endswith(MUSIC_FILE_EXTENSIONS)
-  return [os.path.join(path, file)
-          for root in paths
-          for path,_,files in os.walk(root)
-          for file in files
-          if isMusic(file)]
-
-
 def tagToGroup(id3):
   # For group we check these three tags, in order, first wins:
   # TIT1, Content Group (group)
@@ -107,7 +91,7 @@ def tagToPrefix(id3):
 
 
 def newPath(file):
-  id3 = getID3ForFile(file)
+  id3 = ID3Wrapper(getID3ForFile(file))
   (_, ext) = os.path.splitext(file)
 
   return '{library}/{genre}/{group}/{album}/{prefix}{title}{ext}'.format(
