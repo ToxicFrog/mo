@@ -119,14 +119,13 @@ def main(argv):
   for i,src in enumerate(findMusic(paths)):
     # generate path for file
     # move file into path
-    dst = newPath(src)
-    mkDirFor(dst)
-    if not options['d']:
-      moveFile(src, dst)
     try:
-      pass
+      dst = newPath(src)
+      mkDirFor(dst)
+      if not options['d']:
+        moveFile(src, dst)
     except KeyError as e:
-      print("Error sorting file '%s': missing tag '%s'" % (src, e))
+      print("Error sorting file '%s': missing tag %s" % (src, e))
     except Exception as e:
       print("Error sorting file '%s': %s" % (src, e))
 
