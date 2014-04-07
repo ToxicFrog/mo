@@ -17,7 +17,11 @@ def setTag(id3, key, value):
     key = key[:-1]
     if key in id3:
       return
-  id3[key] = value
+  if value == '':
+    if key in id3: # attempting to delete a missing key throws KeyError?!
+      del(id3[key])
+  else:
+    id3[key] = value
 
 
 def autoTag(id3, pattern, file):
