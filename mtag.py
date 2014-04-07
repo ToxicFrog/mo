@@ -83,7 +83,7 @@ def main(argv):
     sys.stdout.flush()
     id3.save(filename=file)
     #print(id3)
-  sys.stdout.write("\r[%d/%d] DONE    \n" % (len(paths), len(paths)))
+  sys.stdout.write("\r\033[K[%d/%d] DONE    \n" % (len(paths), len(paths)))
 
 if __name__ == "__main__":
   main(sys.argv)
