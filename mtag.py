@@ -11,15 +11,6 @@ from mutagen.easyid3 import EasyID3
 
 from music import getID3ForFile, findMusic
 
-MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
-
-# easyID3 already supports album, artist, title, genre
-EasyID3.RegisterTextKey("track", "TRCK")
-EasyID3.RegisterTextKey("disc", "TPOS")
-EasyID3.RegisterTextKey("group", "TIT1")
-EasyID3.RegisterTXXXKey("supergroup", "TIT0")
-
-
 def setTag(id3, key, value):
   key = key.lower()
   if key.endswith("?"):
@@ -27,6 +18,7 @@ def setTag(id3, key, value):
     if key in id3:
       return
   id3[key] = value
+
 
 def autoTag(id3, pattern, file):
   fields = re.findall(r"\[(.*?)\]", pattern)

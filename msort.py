@@ -12,7 +12,6 @@ from mutagen.easyid3 import EasyID3
 from music import getID3ForFile, findMusic
 
 MUSIC_LIBRARY = '/orias/media/music/_sorted'
-MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
 
 options = {
   't': True,  # prefix track
@@ -20,12 +19,6 @@ options = {
   'y': False, # run for real
   'd': False, # dirs only
 }
-
-# easyID3 already supports album, artist, title, genre
-EasyID3.RegisterTextKey('track', 'TRCK')
-EasyID3.RegisterTextKey('disc', 'TPOS')
-EasyID3.RegisterTextKey('group', 'TIT1')
-EasyID3.RegisterTXXXKey('supergroup', 'TIT0')
 
 class ID3Wrapper(object):
   def __init__(self, id3):
