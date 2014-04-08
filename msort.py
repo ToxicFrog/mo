@@ -10,15 +10,17 @@ from mutagen.id3 import ID3NoHeaderError
 from mutagen.easyid3 import EasyID3
 
 from music import getID3ForFile, findMusic
+from args import parser, subparsers
 
-MUSIC_LIBRARY = '/orias/media/music/_sorted'
+options = None
+subparser = parser.add_subcommand('sort', help='organize files based on tags')
 
-options = {
-  't': True,  # prefix track
-  'a': False, # prefix artist
-  'y': False, # run for real
-  'd': False, # dirs only
-}
+subparser.add_argument('--library', type=str, help='path to music library', default=os.path.join(os.getenv('HOME'), "Music"))
+subparser.add_flag('artist', False, 'prefix file name with artist')
+subparser.add_flag('track', True, 'prefix file name with disc (if set) and track number')
+subparser.add_flag('dry-run', True, 'report only, do not actually move any files')
+subparser.add_flag('dirs-only', False, 'create destination directories but do not move any files')
+subparser.add_argument('paths', type=str, nargs='*', default=["."], help='paths to search for music files in, default "."')
 
 class ID3Wrapper(object):
   def __init__(self, id3):
@@ -32,24 +34,6 @@ class ID3Wrapper(object):
 
   def __contains__(self, key):
     return key in self._id3
-
-
-def parseArgs(argv):
-  paths = []
-  i = 1
-  while i < len(argv):
-    arg = argv[i]
-    i += 1
-    if arg.startswith('-'):
-      flag = arg[1:]
-      if flag.lower() == flag:
-        options[flag.lower()] = True
-      else:
-        options[flag.lower()] = False
-    else:
-      paths.append(arg)
-
-  return paths or ['.']
 
 
 def tagToGroup(id3):
@@ -74,11 +58,11 @@ def tagToGroup(id3):
 
 def tagToPrefix(id3):
   prefix = ''
-  if options['t']:
+  if options.track:
     if 'disc' in id3:
       prefix += ('%d' % id3.disc)
     prefix += ('%02d - ' % id3.track)
-  if options['a']:
+  if options.artist:
     prefix += ('%s - ' % id3.artist)
   return prefix
 
@@ -88,7 +72,7 @@ def newPath(file):
   (_, ext) = os.path.splitext(file)
 
   return '{library}/{genre}/{group}/{album}/{prefix}{title}{ext}'.format(
-    library=MUSIC_LIBRARY,
+    library=options.library,
     genre=id3.genre,
     group=tagToGroup(id3),
     album=id3.album,
@@ -103,7 +87,7 @@ def mkDirFor(file):
   if os.path.exists(dir) or dir in dirs:
     return
   print(dir)
-  if options['y']:
+  if not options.dry_run:
     os.makedirs(dir)
   else:
     dirs.add(dir)
@@ -111,25 +95,26 @@ def mkDirFor(file):
 
 def moveFile(src, dst):
   print('\t%s' % dst)
-  if options['y']:
+  if not options.dry_run:
     os.rename(src, dst)
 
-def main(argv):
-  paths = parseArgs(argv)
-  for i,src in enumerate(findMusic(paths)):
-    # generate path for file
-    # move file into path
+
+def main(_options):
+  global options
+  options = _options
+
+  for i,src in enumerate(findMusic(options.paths)):
     try:
       dst = newPath(src)
       mkDirFor(dst)
-      if not options['d']:
+      if not options.dirs_only:
         moveFile(src, dst)
     except KeyError as e:
       print("Error sorting file '%s': missing tag %s" % (src, e))
-    except Exception as e:
+    except OSError as e:
       print("Error sorting file '%s': %s" % (src, e))
 
-
+subparser.set_defaults(func=main)
 if __name__ == '__main__':
-  main(sys.argv)
+  main(parser.parse_args())
 

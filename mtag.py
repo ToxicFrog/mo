@@ -10,6 +10,22 @@ from mutagen.id3 import ID3NoHeaderError
 from mutagen.easyid3 import EasyID3
 
 from music import getID3ForFile, findMusic
+from args import parser, subparsers
+
+subparser = parser.add_subcommand('tag', help='tag files in bulk')
+subparser.add_argument('--<TAG>=', metavar='', help='clear TAG in all files')
+subparser.add_argument('--<TAG>=<VALUE>', metavar='', help='set TAG to VALUE in all files')
+subparser.add_argument('--<TAG>?=<VALUE>', metavar='', help='set TAG to VALUE only in files missing TAG')
+subparser.add_argument('--auto=<PATTERN>', metavar='', help='automatically set tags based on PATTERN')
+subparser.add_argument('paths', type=str, nargs='*', default=["."], help='paths to search for music files in, default "."')
+
+def parseArg(options, values, arg):
+  if not hasattr(options, 'tags'):
+    setattr(options, 'tags', [])
+  options.tags.append((arg[2:].lower(), values[0]))
+
+subparser.add_fallback(parseArg)
+
 
 def setTag(id3, key, value):
   key = key.lower()
@@ -38,38 +54,12 @@ def autoTag(id3, pattern, file):
       setTag(id3, key, value)
 
 
-def parseArgs(argv):
-  i = 1
-
-  # parse tags
-  tags = []
-  while i < len(argv):
-    arg = argv[i]
-    if arg == "--":
-      i += 1
-      break
-    elif arg.startswith("--"):
-      tags.append((arg[2:].lower(), argv[i+1]))
-      i += 2
-    else:
-      break
-
-  # parse paths
-  paths = argv[i:]
-  if not paths:
-    paths = ["."]
-
-  return (tags,paths)
-
-
-def main(argv):
-  (tags,paths) = parseArgs(argv)
-
-  paths = findMusic(paths)
+def main(options):
+  paths = findMusic(options.paths)
 
   for i,file in enumerate(paths):
     id3 = getID3ForFile(file)
-    for tag in tags:
+    for tag in options.tags:
       if tag[0].startswith("auto"):
         autoTag(id3, tag[1], file)
       else:
@@ -78,9 +68,9 @@ def main(argv):
     sys.stdout.write("\r[%d/%d] %s    " % (i, len(paths), file))
     sys.stdout.flush()
     id3.save(filename=file)
-    #print(id3)
   sys.stdout.write("\r\033[K[%d/%d] DONE    \n" % (len(paths), len(paths)))
 
+subparser.set_defaults(func=main)
 if __name__ == "__main__":
-  main(sys.argv)
+  main(parser.parse_args())
 
