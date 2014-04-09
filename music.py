@@ -15,7 +15,7 @@ MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
 EasyID3.RegisterTextKey("track", "TRCK")
 EasyID3.RegisterTextKey("disc", "TPOS")
 EasyID3.RegisterTextKey("group", "TIT1")
-EasyID3.RegisterTXXXKey("supergroup", "TIT0")
+EasyID3.RegisterTXXXKey("category", "TIT0")
 
 
 def getID3ForFile(file):
