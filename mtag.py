@@ -43,7 +43,7 @@ def setTag(id3, key, value):
 def autoTag(id3, pattern, file):
   fields = re.findall(r"\[(.*?)\]", pattern)
   pattern = re.sub(r"([^a-zA-Z0-9_\[\]])", r"\\\1", pattern)
-  pattern = re.sub(r"\[.*?\]", "([^/]+)", pattern)
+  pattern = re.sub(r"\[.*?\]", "([^/]+?)", pattern)
   values = re.search(pattern, file)
   if not values:
     print("Warning: no match for " + pattern)
@@ -60,7 +60,7 @@ def main(options):
   for i,tags in enumerate(music):
     for tag in options.tags:
       if tag[0].startswith("auto"):
-        autoTag(tags, tag[1], file)
+        autoTag(tags, tag[1], tags.file)
       else:
         setTag(tags, tag[0], tag[1])
 
