@@ -6,6 +6,8 @@ import re
 import sys
 import os
 
+from string import Formatter
+
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.easyid3 import EasyID3
 
@@ -54,33 +56,41 @@ sp_group.add_argument('--prefix-both',
   help='enables both --prefix-track and --prefix-artist',
   action='store_const', dest='file_name', const='{disc?}{track!d:02d} - {artist} - {title}')
 
+class MusicPathFormatter(Formatter):
+  _conversions = {
+    'd': int,
+    'f': float,
+  }
 
-def parseTemplate(tmpl, id3, fields):
-  def fillField(key):
-    key = key.group(1)
+  def __init__(self, tags):
+    self._tags = tags
+
+  def get_value(self, key, args, kwargs):
     optional = False
     if key.endswith('?'):
       key = key[:-1]
       optional = True
-    if key not in fields:
-      if key in id3:
-        fields[key] = id3[key]
-      elif not optional:
-        raise KeyError(key)
-      else:
-        return ''
-    return '{' + key + '}'
-  return re.sub('{(.+?)}', fillField, tmpl)
+    if key in kwargs:
+      return kwargs[key]
+    if key in self._tags:
+      return self._tags[key]
+    if optional:
+      return ''
+    raise KeyError(key)
 
+  def convert_field(self, value, conversion):
+    if conversion in self._conversions:
+      return self._conversions[conversion](value)
+    return super(MusicPathFormatter, self).convert_field(value, conversion)
 
 
 def newPath(tags):
   (_, ext) = os.path.splitext(tags.file)
   template = os.path.join(options.dir_name, options.file_name) + ext
-  template = parseTemplate(template, tags, kwargs)
-  kwargs = { 'library': options.library }
 
-  return template.format(**kwargs)
+  return MusicPathFormatter(tags).format(
+    template,
+    library=options.library)
 
 
 dirs = set()
