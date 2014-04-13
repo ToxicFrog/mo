@@ -9,7 +9,7 @@ import os
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.easyid3 import EasyID3
 
-from music import getID3ForFile, findMusic
+from music import findMusic
 from args import parser, subparsers
 
 subparser = parser.add_subcommand('tag', help='tag files in bulk')
@@ -55,20 +55,19 @@ def autoTag(id3, pattern, file):
 
 
 def main(options):
-  paths = findMusic(options.paths)
+  music = findMusic(options.paths)
 
-  for i,file in enumerate(paths):
-    id3 = getID3ForFile(file)
+  for i,tags in enumerate(music):
     for tag in options.tags:
       if tag[0].startswith("auto"):
-        autoTag(id3, tag[1], file)
+        autoTag(tags, tag[1], file)
       else:
-        setTag(id3, tag[0], tag[1])
+        setTag(tags, tag[0], tag[1])
 
-    sys.stdout.write("\r[%d/%d] %s    " % (i, len(paths), file))
+    sys.stdout.write("\r[%d/%d] %s    " % (i, len(music), tags.file))
     sys.stdout.flush()
-    id3.save(filename=file)
-  sys.stdout.write("\r\033[K[%d/%d] DONE    \n" % (len(paths), len(paths)))
+    tags.save()
+  sys.stdout.write("\r\033[K[%d/%d] DONE    \n" % (len(music), len(music)))
 
 subparser.set_defaults(func=main)
 if __name__ == "__main__":

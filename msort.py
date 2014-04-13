@@ -9,7 +9,7 @@ import os
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.easyid3 import EasyID3
 
-from music import getID3ForFile, findMusic
+from music import findMusic
 from args import parser, subparsers
 
 options = None
@@ -54,42 +54,6 @@ sp_group.add_argument('--prefix-both',
   help='enables both --prefix-track and --prefix-artist',
   action='store_const', dest='file_name', const='{disc?}{track} - {artist} - {title}')
 
-class ID3Wrapper(dict):
-  def __init__(self, id3):
-    self._id3 = id3
-
-  def __getattr__(self, key):
-    return self[key]
-
-  def __getitem__(self, key):
-    return self._id3[key][0].replace('/', '-')
-
-  def __contains__(self, key):
-    return key in self._id3
-
-  @property
-  def disc(self):
-    return self._id3['disc'][0].split('/')[0]
-
-  @property
-  def track(self):
-    return self._id3['track'][0].split('/')[0]
-
-  @property
-  def group(self):
-    if 'group' in self._id3:
-      return self._id3['group']
-    if 'artist' in self._id3:
-      return self._id3['artist']
-    if 'composer' in self._id3:
-      return self._id3['composer']
-    if 'performer' in self._id3:
-      return self._id3['performer']
-    raise KeyError('group')
-
-  def asDict(self):
-    return { key: value for (key, value) in self._id3.iteritems() }
-
 
 def parseTemplate(tmpl, id3, fields):
   def fillField(key):
@@ -109,13 +73,12 @@ def parseTemplate(tmpl, id3, fields):
   return re.sub('{(.+?)}', fillField, tmpl)
 
 
-def newPath(file):
-  id3 = ID3Wrapper(getID3ForFile(file))
-  (_, ext) = os.path.splitext(file)
 
+def newPath(tags):
+  (_, ext) = os.path.splitext(tags.file)
   template = os.path.join(options.dir_name, options.file_name) + ext
+  template = parseTemplate(template, tags, kwargs)
   kwargs = { 'library': options.library }
-  template = parseTemplate(template, id3, kwargs)
 
   return template.format(**kwargs)
 
@@ -142,16 +105,16 @@ def main(_options):
   global options
   options = _options
 
-  for i,src in enumerate(findMusic(options.paths)):
+  for i,tags in enumerate(findMusic(options.paths)):
     try:
-      dst = newPath(src)
+      dst = newPath(tags)
       mkDirFor(dst)
       if not options.dirs_only:
-        moveFile(src, dst)
+        moveFile(tags.file, dst)
     except KeyError as e:
-     print("Error sorting file '%s': missing tag %s" % (src, e))
+     print("Error sorting file '%s': missing tag %s" % (tags.file, e))
     except OSError as e:
-      print("Error sorting file '%s': %s" % (src, e))
+      print("Error sorting file '%s': %s" % (tags.file, e))
 
 subparser.set_defaults(func=main)
 if __name__ == '__main__':
