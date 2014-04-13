@@ -13,7 +13,7 @@ from music import findMusic
 from args import parser, subparsers
 
 options = None
-subparser = parser.add_subcommand('sort', 
+subparser = parser.add_subcommand('sort',
   help='organize files based on tags',
   description="""
     The --file-name and --dir-name arguments can contain {tags}. In addition to the usual (disc,
@@ -32,7 +32,7 @@ subparser.add_argument('paths', type=str, nargs='*', default=["."],
 subparser.add_argument('--library', type=str,
   help='path to music library',
   default=os.path.join(os.getenv('HOME'), 'Music'))
-subparser.add_argument('--dir-name', type=str, 
+subparser.add_argument('--dir-name', type=str,
   help='pattern for destination directory; default %(default)s',
   default='{library}/{genre}/{category?}/{group}/{album}')
 subparser.add_flag('dry-run', True,
@@ -46,13 +46,13 @@ sp_group.add_argument('--file-name', type=str,
   default='{title}')
 sp_group.add_argument('--prefix-track',
   help='as --file-name="%(const)s"',
-  action='store_const', dest='file_name', const='{disc?}{track} - {title}')
+  action='store_const', dest='file_name', const='{disc?}{track!d:02d} - {title}')
 sp_group.add_argument('--prefix-artist',
   help='as --file-name="%(const)s"',
   action='store_const', dest='file_name', const='{artist} - {title}')
 sp_group.add_argument('--prefix-both',
   help='enables both --prefix-track and --prefix-artist',
-  action='store_const', dest='file_name', const='{disc?}{track} - {artist} - {title}')
+  action='store_const', dest='file_name', const='{disc?}{track!d:02d} - {artist} - {title}')
 
 
 def parseTemplate(tmpl, id3, fields):
