@@ -96,17 +96,16 @@ def newPath(tags):
 dirs = set()
 def mkDirFor(file):
   dir = os.path.dirname(file)
-  if os.path.exists(dir) or dir in dirs:
+  if dir in dirs:
     return
   print(dir)
-  if not options.dry_run:
+  dirs.add(dir)
+  if not options.dry_run and not os.path.exists(dir):
     os.makedirs(dir)
-  else:
-    dirs.add(dir)
 
 
 def moveFile(src, dst):
-  print('\t%s' % dst)
+  print('\t%s' % os.path.basename(dst))
   if not options.dry_run:
     os.rename(src, dst)
 
@@ -115,7 +114,7 @@ def main(_options):
   global options
   options = _options
 
-  for i,tags in enumerate(findMusic(options.paths)):
+  for i,tags in enumerate(sorted(findMusic(options.paths), key=lambda x: x.file)):
     try:
       dst = newPath(tags)
       mkDirFor(dst)
