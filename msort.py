@@ -72,8 +72,8 @@ class MusicPathFormatter(Formatter):
       optional = True
     if key in kwargs:
       return kwargs[key]
-    if key in self._tags:
-      return self._tags[key]
+    if hasattr(self._tags, key):
+      return getattr(self._tags, key)
     if optional:
       return ''
     raise KeyError(key)

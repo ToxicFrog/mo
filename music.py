@@ -6,7 +6,7 @@ import re
 import sys
 import os
 
-from mutagen.id3 import ID3,ID3NoHeaderError
+from mutagen.id3 import ID3,ID3NoHeaderError,Frames
 from mutagen.flac import FLAC
 
 MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
@@ -30,7 +30,7 @@ class TagWrapper(object):
 
   def __getitem__(self, key):
     key = self._tagmap.get(key, key)
-    return self._tags[key][0].replace('/', '-')
+    return self._tags[key][0] #.replace('/', '-')
 
   def __setattr__(self, key, value):
     self[key] = value
@@ -54,11 +54,11 @@ class TagWrapper(object):
 
   @property
   def disc(self):
-    return self._tags['disc'][0].split('/')[0]
+    return re.match('^([0-9]+)', self['disc']).groups()[0]
 
   @property
   def track(self):
-    return self._tags['track'][0].split('/')[0]
+    return re.match('^([0-9]+)', self['track']).groups()[0]
 
 
 class ID3Wrapper(TagWrapper):
@@ -86,6 +86,10 @@ class ID3Wrapper(TagWrapper):
       return ID3(file)
     except ID3NoHeaderError:
       return ID3()
+
+  def __setitem__(self, key, value):
+    key = self._tagmap.get(key, key)
+    self._tags.add(Frames[key](encoding=3, text=value))
 
 
 class FLACWrapper(TagWrapper):
