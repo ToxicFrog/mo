@@ -36,5 +36,14 @@ Which is to say, it sorts by genre and optional category, then content-group (fa
 
 It is *strongly* recommended that you perform a dry run without actually moving any files first, to make sure everything goes where you expect it to. This is the default behaviour. To actually move the files, use `--no-dry-run`.
 
-
 [1] https://docs.python.org/2/library/functions.html#format
+
+## License
+
+Copyright © 2014 Ben "ToxicFrog" Kelly, Google Inc.
+
+Distributed under the Apache License v2; see the file COPYING for details.
+
+### Disclaimer
+
+This is not an official Google product and is not supported by Google.
