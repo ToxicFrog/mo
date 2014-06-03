@@ -29,9 +29,10 @@ It has two enhancements over normal python formatting strings: it supports a new
 
 The complete default path for sorting, with `--prefix-both` enabled, is:
 
-    {library}/{genre}/{category?}/{group}/{album}/{disc?}{track!d:02d} - {artist} - {title}
+    {library}/{genre}/{category?}/{group/artist/composer/performer}/{album}/
+        {disc?}{track!d:02d} - {artist} - {title}
 
-Which is to say, it sorts by genre, category, group, and album, in that order, then names the files with disc number, two-digit track number, artist name, and title. (Extensions are applied automatically.) If the category name or disc number tags are missing, they are simply skipped; if any other tag is missing, it raises an error.
+Which is to say, it sorts by genre and optional category, then content-group (falling back to artist, then composer, and then performer if there is no content-group set), and then album, then names the files with disc number, two-digit track number, artist name, and title. (Extensions are applied automatically.) If the category name or disc number tags are missing, they are simply skipped; if any other tag is missing, it raises an error.
 
 It is *strongly* recommended that you perform a dry run without actually moving any files first, to make sure everything goes where you expect it to. This is the default behaviour. To actually move the files, use `--no-dry-run`.
 

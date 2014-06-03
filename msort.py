@@ -18,12 +18,15 @@ options = None
 subparser = parser.add_subcommand('sort',
   help='organize files based on tags',
   description="""
-    The --file-name and --dir-name arguments can contain {tags}. In addition to the usual (disc,
-    track, genre, etc), it supports the special tags "category" (the extension tag TIT0) and
-    "group" (whichever of content-group, artist, composer, or performer it finds first).
+    The --file-name and --dir-name arguments can contain {tags}. These will be taken from the
+    file being sorted.
 
     If a {tag} ends with ?, it will be treated as "" if missing. Otherwise, if it encounters a
     file missing that tag, it will report an error and exit.
+
+    If a {tag} contains slashes, it will split it on those and then take the first one it
+    finds; e.g. {artist/composer} will be replaced with the artist if the file has that tag,
+    and the composer otherwise, and fail if the file has neither.
 
     It is recommended that you run first with --dry-run (the default). Use --no-dry-run to
     actually move the files.
@@ -36,7 +39,7 @@ subparser.add_argument('--library', type=str,
   default=os.path.join(os.getenv('HOME'), 'Music'))
 subparser.add_argument('--dir-name', type=str,
   help='pattern for destination directory; default %(default)s',
-  default='{library}/{genre}/{category?}/{group}/{album}')
+  default='{library}/{genre}/{category?}/{group/artist/composer/performer}/{album}')
 subparser.add_flag('dry-run', True,
   help='report only, do not actually move any files')
 subparser.add_flag('dirs-only', False,
@@ -67,6 +70,13 @@ class MusicPathFormatter(Formatter):
 
   def get_value(self, key, args, kwargs):
     optional = False
+    if '/' in key:
+      for subkey in key.split('/'):
+        try:
+          return self.get_value(subkey, args, kwargs)
+        except:
+          pass
+      raise KeyError(key)
     if key.endswith('?'):
       key = key[:-1]
       optional = True
