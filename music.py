@@ -92,7 +92,11 @@ class ID3Wrapper(TagWrapper):
 
   def __setitem__(self, key, value):
     key = self._tagmap.get(key, key)
-    self._tags.add(Frames[key](encoding=3, text=value))
+    if key.startswith('TXXX:'): # user-defined text frame
+      subkey = key.split(':')[-1]
+      self._tags.add(mutagen.id3.TXXX(encoding=3, text=value, desc=subkey))
+    else:
+      self._tags.add(Frames[key](encoding=3, text=value))
 
 
 class FLACWrapper(TagWrapper):
