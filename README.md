@@ -2,7 +2,7 @@
 
 mo is a small command line tool for tagging music files, and moving those files into a music library based on their tags, quickly and easy. I wrote it to help me organize my vast and completely disorganized music collection.
 
-It recognizes .flac, .mp3, .mp4, .aac, and .ogg files. It uses FLAC/Vorbis tags for .flac files and ID3 tags for *everything* else, even files that have their own tagging format - this will usually work but probably isn't ideal! Support for other non-ID3 formats will come as I encounter music in my collection that uses them.
+It recognizes .flac, .mp3, .mp4, .aac, and .ogg files. It uses FLAC/Vorbis tags for .flac and .ogg files, ID3v2 tags for .mp3 files, and tries to autodetect the rest. Autodetection is very basic and using it may require you to know what the tags are called internally; improved support for other formats will come as I encounter music in my collection that uses them.
 
 It has two modes, `mo tag` and `mo sort`. Basic help on each of them is available with `mo <mode> --help`. This document covers details too lengthy for the built in help.
 
