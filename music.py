@@ -123,4 +123,7 @@ def findMusic(paths):
           for root in paths
           for path,_,files in os.walk(root)
           for file in files
-          if isMusic(file)]
+          if isMusic(file)] + [
+          getTagsForFile(file)
+          for file in paths
+          if os.path.isfile(file)]
