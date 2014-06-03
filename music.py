@@ -5,9 +5,12 @@ from __future__ import print_function
 import re
 import sys
 import os
+import os.path
 
+import mutagen.id3
 from mutagen.id3 import ID3,ID3NoHeaderError,Frames
 from mutagen.flac import FLAC
+from mutagen.oggvorbis import OggVorbis
 
 MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
 
@@ -79,7 +82,7 @@ class ID3Wrapper(TagWrapper):
 
   @classmethod
   def canWrap(_, file):
-    return True
+    return file.endswith(".mp3")
 
   def _wrap(self, file):
     try:
@@ -107,10 +110,33 @@ class FLACWrapper(TagWrapper):
     return FLAC(file)
 
 
-# MP4 and OGG not implemented yet
+class VorbisWrapper(TagWrapper):
+  _tagmap = {
+    'disc':       'discnumber',
+    'group':      'contentgroup',
+    'track':      'tracknumber',
+  }
+
+  @classmethod
+  def canWrap(_, file):
+    return file.endswith(".ogg")
+
+  def _wrap(self, file):
+    return OggVorbis(file)
+
+
+class GuessWrapper(TagWrapper):
+  @classmethod
+  def canWrap(_, file):
+    return True
+
+  def _wrap(self, file):
+    print("WARNING: guessing tag type of file %s" % file)
+    return mutagen.File(file)
+
 
 def getTagsForFile(file):
-  for wrapper in [FLACWrapper, ID3Wrapper]:
+  for wrapper in [FLACWrapper, VorbisWrapper, ID3Wrapper, GuessWrapper]:
     if wrapper.canWrap(file):
       return wrapper(file)
   raise ValueError("No tag handler found for file '%s'")
