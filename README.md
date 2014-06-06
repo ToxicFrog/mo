@@ -34,6 +34,10 @@ The complete default path for sorting, with `--prefix-both` enabled, is:
 
 Which is to say, it sorts by genre and optional category, then content-group (falling back to artist, then composer, and then performer if there is no content-group set), and then album, then names the files with disc number, two-digit track number, artist name, and title. (Extensions are applied automatically.) If the category name or disc number tags are missing, they are simply skipped; if any other tag is missing, it raises an error.
 
+`mo sort` is also (somewhat) intelligent about the contents of the tags and will strip out characters that are not legal in filenames. The default is to strip out `/` and replace it with `-`; you can change the former with the `--safe-paths` option and the latter with `--safe-char`. `--safe-paths=linux` is equivalent to `--safe-paths=/` and is the default; `--safe-paths=windows` is equivalent to `--safe-paths='<>:"/\|?*'`. All listed characters will be replaced with the `--safe-char`.
+
+Note that this path modification only affects the path it stores the file under, *not* the original tags, which are left unaffected. It also *only* affects path elements read from tags; anything specified directly with `--library`, `--dir-name`, or `--file-name` is used exactly as is.
+
 It is *strongly* recommended that you perform a dry run without actually moving any files first, to make sure everything goes where you expect it to. This is the default behaviour. To actually move the files, use `--no-dry-run`.
 
 [1] https://docs.python.org/2/library/functions.html#format

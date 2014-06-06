@@ -45,11 +45,12 @@ subparser.add_argument('--library', type=utf8,
 subparser.add_argument('--dir-name', type=utf8,
   help='pattern for destination directory; default %(default)s',
   default='{library}/{genre}/{category?}/{group/artist/composer/performer}/{album}')
-subparser.add_argument('--safe-paths', type=utf8,
-  help='replace characters not normally allowed in filenames',
+subparser.add_argument('--safe-paths', type=utf8, metavar='PATTERN',
+  help='replace characters not normally allowed in filenames; ' +
+       'understands "linux", "windows", or a list of characters; default "%(default)s"',
   default='linux')
-subparser.add_argument('--safe-char', type=utf8,
-  help='replace characters removed by --safe-paths with this',
+subparser.add_argument('--safe-char', type=utf8, metavar='CHAR',
+  help='replace characters removed by --safe-paths with this, default "%(default)s"',
   default='-')
 subparser.add_flag('dry-run', True,
   help='report only, do not actually move any files')
@@ -79,6 +80,23 @@ class MusicPathFormatter(Formatter):
   def __init__(self, tags):
     self._tags = tags
 
+  def make_safe(self, path):
+    path = utf8(path)
+
+    def make_tr(chars):
+      return { ord(char): options.safe_char for char in chars }
+
+    if options.safe_paths == 'linux':
+      # replace /
+      return path.translate(make_tr(u'/'))
+    elif options.safe_paths == 'windows':
+      # replace <>:"/\|?*
+      return path.translate(make_tr(u'<>:"/\\|?*'))
+    elif options.safe_paths:
+      # replace any character in --safe-paths
+      return path.translate(make_tr(options.safe_paths))
+    return path
+
   def get_value(self, key, args, kwargs):
     optional = False
     if '/' in key:
@@ -94,7 +112,7 @@ class MusicPathFormatter(Formatter):
     if key in kwargs:
       return kwargs[key]
     if hasattr(self._tags, key):
-      return getattr(self._tags, key)
+      return self.make_safe(getattr(self._tags, key))
     if optional:
       return ''
     raise KeyError(key)
