@@ -12,23 +12,29 @@ from mutagen.easyid3 import EasyID3
 from music import findMusic
 from args import parser, subparsers
 
+def utf8(str):
+  if isinstance(str, unicode):
+    return str
+  return unicode(str, 'utf-8')
+
 subparser = parser.add_subcommand('tag', help='tag files in bulk')
 subparser.add_argument('--<TAG>=', metavar='', help='clear TAG in all files')
 subparser.add_argument('--<TAG>=<VALUE>', metavar='', help='set TAG to VALUE in all files')
 subparser.add_argument('--<TAG>?=<VALUE>', metavar='', help='set TAG to VALUE only in files missing TAG')
 subparser.add_argument('--auto=<PATTERN>', metavar='', help='automatically set tags based on PATTERN')
-subparser.add_argument('paths', type=str, nargs='*', default=["."], help='paths to search for music files in, default "."')
+subparser.add_argument('paths', type=utf8, nargs='*', default=["."], help='paths to search for music files in, default "."')
 
 def parseArg(options, values, arg):
   if not hasattr(options, 'tags'):
     setattr(options, 'tags', [])
-  options.tags.append((arg[2:].lower(), values[0]))
+  options.tags.append((arg[2:].lower(), utf8(values[0])))
 
 subparser.add_fallback(parseArg)
 
 
 def setTag(id3, key, value):
   key = key.lower()
+  value = utf8(value)
   if key.endswith("?"):
     key = key[:-1]
     if key in id3:

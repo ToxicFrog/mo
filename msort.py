@@ -14,6 +14,11 @@ from mutagen.easyid3 import EasyID3
 from music import findMusic
 from args import parser, subparsers
 
+def utf8(str):
+  if isinstance(str, unicode):
+    return str
+  return unicode(str, 'utf-8')
+
 options = None
 subparser = parser.add_subcommand('sort',
   help='organize files based on tags',
@@ -32,21 +37,27 @@ subparser = parser.add_subcommand('sort',
     actually move the files.
   """)
 
-subparser.add_argument('paths', type=str, nargs='*', default=["."],
+subparser.add_argument('paths', type=utf8, nargs='*', default=[u"."],
   help='paths to search for music files in, default %(default)s')
-subparser.add_argument('--library', type=str,
+subparser.add_argument('--library', type=utf8,
   help='path to music library',
   default=os.path.join(os.getenv('HOME'), 'Music'))
-subparser.add_argument('--dir-name', type=str,
+subparser.add_argument('--dir-name', type=utf8,
   help='pattern for destination directory; default %(default)s',
   default='{library}/{genre}/{category?}/{group/artist/composer/performer}/{album}')
+subparser.add_argument('--safe-paths', type=utf8,
+  help='replace characters not normally allowed in filenames',
+  default='linux')
+subparser.add_argument('--safe-char', type=utf8,
+  help='replace characters removed by --safe-paths with this',
+  default='-')
 subparser.add_flag('dry-run', True,
   help='report only, do not actually move any files')
 subparser.add_flag('dirs-only', False,
   help='create destination directories but do not move any files')
 
 sp_group = subparser.add_mutually_exclusive_group()
-sp_group.add_argument('--file-name', type=str,
+sp_group.add_argument('--file-name', type=utf8,
   help='pattern for destination files; default %(default)s',
   default='{title}')
 sp_group.add_argument('--prefix-track',
