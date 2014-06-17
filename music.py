@@ -9,20 +9,25 @@ import os.path
 
 import mutagen.id3
 from mutagen.id3 import ID3,ID3NoHeaderError,Frames
-from mutagen.flac import FLAC
-from mutagen.oggvorbis import OggVorbis
+from mutagen.flac import FLAC,FLACNoHeaderError
+from mutagen.oggvorbis import OggVorbis,OggVorbisHeaderError
 
 MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
 
 class TagWrapper(object):
   _tagmap = {}
+  _wrapper = None
+  _errortype = None
 
   @classmethod
   def canWrap(_, file):
     raise NotImplementedError()
 
   def _wrap(self, file):
-    raise NotImplementedError()
+    try:
+      return self._wrapper(file)
+    except self._errortype:
+      return self._wrapper()
 
   def __init__(self, file):
     self.__dict__['file'] = file
@@ -65,6 +70,8 @@ class TagWrapper(object):
 
 
 class ID3Wrapper(TagWrapper):
+  _wrapper = ID3
+  _errortype = ID3NoHeaderError
   _tagmap = {
     'album':      'TALB',
     'arranger':   'TPE4',
@@ -84,12 +91,6 @@ class ID3Wrapper(TagWrapper):
   def canWrap(_, file):
     return file.endswith(".mp3")
 
-  def _wrap(self, file):
-    try:
-      return ID3(file)
-    except ID3NoHeaderError:
-      return ID3()
-
   def __setitem__(self, key, value):
     key = self._tagmap.get(key, key)
     if key.startswith('TXXX:'): # user-defined text frame
@@ -100,6 +101,8 @@ class ID3Wrapper(TagWrapper):
 
 
 class FLACWrapper(TagWrapper):
+  _wrapper = FLAC
+  _errortype = FLACNoHeaderError
   _tagmap = {
     'disc':       'discnumber',
     'group':      'contentgroup',
@@ -110,11 +113,10 @@ class FLACWrapper(TagWrapper):
   def canWrap(_, file):
     return file.endswith(".flac")
 
-  def _wrap(self, file):
-    return FLAC(file)
-
 
 class VorbisWrapper(TagWrapper):
+  _wrapper = OggVorbis
+  _errortype = OggVorbisHeaderError
   _tagmap = {
     'disc':       'discnumber',
     'group':      'contentgroup',
@@ -124,9 +126,6 @@ class VorbisWrapper(TagWrapper):
   @classmethod
   def canWrap(_, file):
     return file.endswith(".ogg")
-
-  def _wrap(self, file):
-    return OggVorbis(file)
 
 
 class GuessWrapper(TagWrapper):
