@@ -52,7 +52,7 @@ def autoTag(id3, pattern, file):
   pattern = re.sub(r"\[.*?\]", "([^/]+?)", pattern)
   values = re.search(pattern, file)
   if not values:
-    print("Warning: no match for " + pattern)
+    sys.stdout.write("\r\x1B[K[ERROR] %s: no match for pattern '%s'\n" % (file, pattern))
     return
 
   for key,value in zip(fields, values.groups()):
