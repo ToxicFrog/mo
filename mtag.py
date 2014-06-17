@@ -70,10 +70,10 @@ def main(options):
       else:
         setTag(tags, tag[0], tag[1])
 
-    sys.stdout.write("\r[%d/%d] %s    " % (i, len(music), tags.file))
+    sys.stdout.write("\r\x1B[K[%d/%d] %s    " % (i, len(music), tags.file))
     sys.stdout.flush()
     tags.save()
-  sys.stdout.write("\r\033[K[%d/%d] DONE    \n" % (len(music), len(music)))
+  sys.stdout.write("\r\x1B[K[%d/%d] DONE    \n" % (len(music), len(music)))
 
 subparser.set_defaults(func=main)
 if __name__ == "__main__":
