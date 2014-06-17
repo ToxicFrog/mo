@@ -22,7 +22,7 @@ subparser.add_argument('--<TAG>=', metavar='', help='clear TAG in all files')
 subparser.add_argument('--<TAG>=<VALUE>', metavar='', help='set TAG to VALUE in all files')
 subparser.add_argument('--<TAG>?=<VALUE>', metavar='', help='set TAG to VALUE only in files missing TAG')
 subparser.add_argument('--auto=<PATTERN>', metavar='', help='automatically set tags based on PATTERN')
-subparser.add_argument('paths', type=utf8, nargs='*', default=["."], help='paths to search for music files in, default "."')
+subparser.add_argument('paths', type=utf8, nargs='*', default=[u"."], help='paths to search for music files in, default "."')
 
 def parseArg(options, values, arg):
   if not hasattr(options, 'tags'):
