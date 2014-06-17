@@ -17,5 +17,7 @@ def main(options):
   options.func(options)
 
 if __name__ == "__main__":
+  import codecs
+  sys.stdout = codecs.getwriter('utf8')(sys.stdout)
   main(parser.parse_args())
 
