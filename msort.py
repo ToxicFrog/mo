@@ -52,8 +52,8 @@ subparser.add_argument('--safe-paths', type=utf8, metavar='PATTERN',
 subparser.add_argument('--safe-char', type=utf8, metavar='CHAR',
   help='replace characters removed by --safe-paths with this, default "%(default)s"',
   default='-')
-subparser.add_flag('dry-run', True,
-  help='report only, do not actually move any files')
+subparser.add_flag('go', False,
+  help='actually move the files (default is to preview results)')
 subparser.add_flag('dirs-only', False,
   help='create destination directories but do not move any files')
 
@@ -139,13 +139,13 @@ def mkDirFor(file):
     return
   print(dir)
   dirs.add(dir)
-  if not options.dry_run and not os.path.exists(dir):
+  if options.go and not os.path.exists(dir):
     os.makedirs(dir)
 
 
 def moveFile(src, dst):
   print('\t%s' % os.path.basename(dst))
-  if not options.dry_run:
+  if options.go:
     os.rename(src, dst)
 
 
