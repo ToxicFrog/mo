@@ -148,11 +148,21 @@ def getTagsForFile(file):
 def findMusic(paths):
   def isMusic(file):
     return file.endswith(MUSIC_FILE_EXTENSIONS)
-  return [getTagsForFile(os.path.join(path, file))
-          for root in paths
-          for path,_,files in os.walk(root)
-          for file in files
-          if isMusic(file)] + [
-          getTagsForFile(file)
-          for file in paths
-          if os.path.isfile(file)]
+
+  music = [file for file in paths if os.path.isfile(file)]
+  n = len(music)
+  for root in paths:
+    for path,_,files in os.walk(root):
+      for file in files:
+        if isMusic(file):
+          n += 1
+          sys.stdout.write("\rScanning: %d files" % n)
+          music.append(os.path.join(path, file))
+
+  sys.stdout.write("\nReading tags: 0/%d files" % len(music))
+  for i in xrange(len(music)):
+    music[i] = getTagsForFile(music[i])
+    sys.stdout.write("\rReading tags: %d/%d files" % (i+1, len(music)))
+
+  sys.stdout.write("\n")
+  return music
