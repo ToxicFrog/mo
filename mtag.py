@@ -75,7 +75,7 @@ def main(options):
     tags.save()
   sys.stdout.write("\r\x1B[K[%d/%d] DONE    \n" % (len(music), len(music)))
 
-subparser.set_defaults(func=main)
+subparser.set_defaults(func=main, command='tag')
 if __name__ == "__main__":
   main(parser.parse_args())
 

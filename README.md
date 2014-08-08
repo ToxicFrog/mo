@@ -6,6 +6,22 @@ It recognizes .flac, .mp3, .mp4, .aac, and .ogg files. It uses FLAC/Vorbis tags 
 
 It has two modes, `mo tag` and `mo sort`. Basic help on each of them is available with `mo <mode> --help`. This document covers details too lengthy for the built in help.
 
+## rc file
+
+`mo` will read a default configuration from the file `~/.morc` on startup. This is a basic ini file containing (up to) two sections, `[sort]` for settings to apply when sorting, and `[tag]` for settings to apply when tagging.
+
+These settings are applied to the internal configuration variables, rather than parsed as command-line arguments. In particular, this means that:
+
+  * All of the `--prefix` options are configured by setting `file-name`
+  * Argument-less flags are set with `flag: true`
+
+For example, my configuration file is:
+
+    [sort]
+    library: /music
+    file-name: {disc?}{track!d:02d} - {title}
+    safe-paths: windows
+
 ## mo tag
 
 `mo tag` takes a set of tags to apply and a set of files to apply them to. Tags are specified with `--tag=VALUE` or `--tag?=VALUE` -- the former sets the tag on all files, the latter only on those files that don't have that tag set already. Setting an empty value (`--tag=`) will clear that tag entirely.
@@ -23,7 +39,7 @@ Internally, it is treated as a regular expression where each `[tag]` is a nongre
 
 `mo sort` is much simpler than `mo tag`; it just takes some fine tuning options (documented in the `--help`) and paths and moves those files into your music library. (The location of that library is one of those tuning options.)
 
-For greater control over the disposition of the files, the `--dir-name` and `--file-name` options can be specified directly. The templates they take are actually Python formatting strings[1], with keys being tags in the files being sorted, or the special tag `{library}` for the library location. There are also convenience functions `--prefix-track`, `--prefix-artist`, and `--prefix-both` to support the common use cases of wanting numbered tracks, filenames with artist and title rather than just title, or both at once.
+For greater control over the disposition of the files, the `--dir-name` and `--file-name` options can be specified directly. The templates they take are actually Python formatting strings[1], with keys being tags in the files being sorted, or the special tag `{library}` for the library location. There are also convenience functions `--prefix-track`, `--prefix-artist`, and `--prefix-both` to support the common use cases of wanting numbered tracks, filenames with artist and title rather than just title, or both at once. You can also use `--no-prefix` to override any default set in the configuration file (equivalent to `--file-name={title}`).
 
 It has two enhancements over normal python formatting strings: it supports a new conversion format, 'd', for converting to integer (used in the template specified by `--prefix-track`), and it treats tags ending with '?' specially. If those tags (sans '?') are not present in the file being sorted, it treats them as the empty string; if any other tag is missing, it results in an error.
 
@@ -38,7 +54,7 @@ Which is to say, it sorts by genre and optional category, then content-group (fa
 
 Note that this path modification only affects the path it stores the file under, *not* the original tags, which are left unaffected. It also *only* affects path elements read from tags; anything specified directly with `--library`, `--dir-name`, or `--file-name` is used exactly as is.
 
-It is *strongly* recommended that you perform a dry run without actually moving any files first, to make sure everything goes where you expect it to. This is the default behaviour. To actually move the files, use `--no-dry-run`.
+It is *strongly* recommended that you perform a dry run without actually moving any files first, to make sure everything goes where you expect it to. This is the default behaviour. To actually move the files, use `--go`.
 
 [1] https://docs.python.org/2/library/functions.html#format
 

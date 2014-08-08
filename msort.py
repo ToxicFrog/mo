@@ -70,6 +70,9 @@ sp_group.add_argument('--prefix-artist',
 sp_group.add_argument('--prefix-both',
   help='enables both --prefix-track and --prefix-artist',
   action='store_const', dest='file_name', const='{disc?}{track!d:02d} - {artist} - {title}')
+sp_group.add_argument('--no-prefix',
+  help='disables all --prefix options even if set in config file',
+  action='store_const', dest='file_name', const='{title}')
 
 class MusicPathFormatter(Formatter):
   _conversions = {
@@ -164,7 +167,7 @@ def main(_options):
     except OSError as e:
       print("Error sorting file '%s': %s" % (tags.file, e))
 
-subparser.set_defaults(func=main)
+subparser.set_defaults(func=main, command='sort')
 if __name__ == '__main__':
   main(parser.parse_args())
 
