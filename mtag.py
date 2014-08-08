@@ -17,7 +17,10 @@ def utf8(str):
     return str
   return unicode(str, 'utf-8')
 
-subparser = parser.add_subcommand('tag', help='tag files in bulk')
+subparser = parser.add_subcommand('tag', help='tag files in bulk',
+  description="""
+    Tag many files, or (with --auto) infer tags from file and directory names.
+  """)
 subparser.add_argument('--<TAG>=', metavar='', help='clear TAG in all files')
 subparser.add_argument('--<TAG>=<VALUE>', metavar='', help='set TAG to VALUE in all files')
 subparser.add_argument('--<TAG>?=<VALUE>', metavar='', help='set TAG to VALUE only in files missing TAG')

@@ -23,18 +23,9 @@ options = None
 subparser = parser.add_subcommand('sort',
   help='organize files based on tags',
   description="""
-    The --file-name and --dir-name arguments can contain {tags}. These will be taken from the
-    file being sorted.
-
-    If a {tag} ends with ?, it will be treated as "" if missing. Otherwise, if it encounters a
-    file missing that tag, it will report an error and exit.
-
-    If a {tag} contains slashes, it will split it on those and then take the first one it
-    finds; e.g. {artist/composer} will be replaced with the artist if the file has that tag,
-    and the composer otherwise, and fail if the file has neither.
-
-    It is recommended that you run first with --dry-run (the default). Use --no-dry-run to
-    actually move the files.
+    Moves or copies files into the path specified by --library, --dir-name, and
+    --file-name, replacing {tag} with the contents of that tag in each file
+    being moved. Dry-run by default; use --go to actually make changes.
   """)
 
 subparser.add_argument('paths', type=utf8, nargs='*', default=[u"."],
