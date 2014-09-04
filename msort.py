@@ -5,6 +5,7 @@ from __future__ import print_function
 import re
 import sys
 import os
+import shutil
 
 from string import Formatter
 
@@ -43,6 +44,9 @@ subparser.add_argument('--safe-paths', type=utf8, metavar='PATTERN',
 subparser.add_argument('--safe-char', type=utf8, metavar='CHAR',
   help='replace characters removed by --safe-paths with this, default "%(default)s"',
   default='-')
+subparser.add_argument('--mode', type=utf8, metavar='MODE',
+  help='whether to move, copy, hardlink, or symlink the files, default "%(default)s"',
+  default='move')
 subparser.add_flag('go', False,
   help='actually move the files (default is to preview results)')
 subparser.add_flag('dirs-only', False,
@@ -138,9 +142,15 @@ def mkDirFor(file):
 
 
 def moveFile(src, dst):
+movers = {
+  'move': shutil.move,
+  'copy': shutil.copy2,
+  'symlink': os.symlink,
+  'hardlink': os.link,
+}
   print('\t%s' % os.path.basename(dst))
   if options.go:
-    os.rename(src, dst)
+    movers[options.mode](src, dst)
 
 
 def main(_options):
