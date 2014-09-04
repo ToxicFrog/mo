@@ -51,6 +51,8 @@ subparser.add_flag('go', False,
   help='actually move the files (default is to preview results)')
 subparser.add_flag('dirs-only', False,
   help='create destination directories but do not move any files')
+subparser.add_flag('skip-existing', False,
+  help='skip and report files that already exist')
 
 sp_group = subparser.add_mutually_exclusive_group()
 sp_group.add_argument('--file-name', type=utf8,
@@ -141,13 +143,16 @@ def mkDirFor(file):
     os.makedirs(dir)
 
 
-def moveFile(src, dst):
 movers = {
   'move': shutil.move,
   'copy': shutil.copy2,
   'symlink': os.symlink,
   'hardlink': os.link,
 }
+def moveFile(src, dst, skipped):
+  if os.path.exists(dst) and options.skip_existing:
+    skipped.append(dst)
+    return
   print('\t%s' % os.path.basename(dst))
   if options.go:
     movers[options.mode](src, dst)
@@ -156,17 +161,22 @@ movers = {
 def main(_options):
   global options
   options = _options
+  skipped = []
 
   for i,tags in enumerate(sorted(findMusic(options.paths), key=lambda x: x.file)):
     try:
       dst = newPath(tags)
       mkDirFor(dst)
       if not options.dirs_only:
-        moveFile(tags.file, dst)
+        moveFile(tags.file, dst, skipped)
     except KeyError as e:
      print("Error sorting file '%s': missing tag %s" % (tags.file, e))
     except OSError as e:
       print("Error sorting file '%s': %s" % (tags.file, e))
+  if skipped:
+    print("\n\t==== SKIPPED ====\n")
+    for file in skipped:
+      print(file)
 
 subparser.set_defaults(func=main, command='sort')
 if __name__ == '__main__':
