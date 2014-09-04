@@ -81,10 +81,12 @@ class ID3Wrapper(TagWrapper):
     'conductor':  'TPE3',
     'disc':       'TPOS',
     'genre':      'TCON',
-    'group':      'TIT1',
     'performer':  'TPE2',
+    'group':      'TIT1',
     'title':      'TIT2',
+    'subtitle':   'TIT3',
     'track':      'TRCK',
+    'filename':   'TOFN',
   }
 
   @classmethod
@@ -157,12 +159,14 @@ def findMusic(paths):
         if isMusic(file):
           n += 1
           sys.stdout.write("\rScanning: %d files" % n)
+          sys.stdout.flush()
           music.append(os.path.join(path, file))
 
   sys.stdout.write("\nReading tags: 0/%d files" % len(music))
   for i in xrange(len(music)):
     music[i] = getTagsForFile(music[i])
     sys.stdout.write("\rReading tags: %d/%d files" % (i+1, len(music)))
+    sys.stdout.flush()
 
   sys.stdout.write("\n")
   return music
