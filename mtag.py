@@ -67,15 +67,19 @@ def main(options):
   music = findMusic(options.paths)
 
   for i,tags in enumerate(music):
-    for tag in options.tags:
-      if tag[0].startswith("auto"):
-        autoTag(tags, tag[1], tags.file)
-      else:
-        setTag(tags, tag[0], tag[1])
+    try:
+      for tag in options.tags:
+        if tag[0].startswith("auto"):
+          autoTag(tags, tag[1], tags.file)
+        else:
+          setTag(tags, tag[0], tag[1])
+      sys.stdout.write("\r\x1B[K[%d/%d] %s    " % (i, len(music), tags.file))
+      sys.stdout.flush()
+      tags.save()
+    except Exception as e:
+      print("ERROR: %s: %s" % (str(e), tags.file))
+      print(sys.exc_info()[0])
 
-    sys.stdout.write("\r\x1B[K[%d/%d] %s    " % (i, len(music), tags.file))
-    sys.stdout.flush()
-    tags.save()
   sys.stdout.write("\r\x1B[K[%d/%d] DONE    \n" % (len(music), len(music)))
 
 subparser.set_defaults(func=main, command='tag')
