@@ -166,6 +166,8 @@ def main(_options):
   for i,tags in enumerate(sorted(findMusic(options.paths), key=lambda x: x.file)):
     try:
       dst = newPath(tags)
+      if os.path.realpath(os.path.normpath(dst)) == os.path.realpath(os.path.normpath(tags.file)):
+        continue
       mkDirFor(dst)
       if not options.dirs_only:
         moveFile(tags.file, dst, skipped)
