@@ -42,6 +42,13 @@ def setTag(id3, key, value):
     key = key[:-1]
     if key in id3:
       return
+  if key.endswith("@"):
+    key = key[:-1]
+    if value in id3:
+      value = id3[value]
+    else:
+      sys.stdout.write("\r\x1B[K[ERROR] %s: can't set tag '%s' from '%s'; no value to set from\n" % (file, key, value))
+      return
   if value == '':
     if key in id3: # attempting to delete a missing key throws KeyError?!
       del(id3[key])

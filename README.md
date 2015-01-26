@@ -26,6 +26,8 @@ For example, my configuration file is:
 
 `mo tag` takes a set of tags to apply and a set of files to apply them to. Tags are specified with `--tag=VALUE` or `--tag?=VALUE` -- the former sets the tag on all files, the latter only on those files that don't have that tag set already. Setting an empty value (`--tag=`) will clear that tag entirely.
 
+You can also use `--tag@=OTHERTAG`. This will set the value of `tag` from the value of `othertag`, if the latter is set (and raise an error otherwise). This can be combined with `?`, as `--tag@?=OTHERTAG`.
+
 It 'naturally' understands the following tags: album, arranger, artist, category, composer, conductor, disc, genre, group, performer, title, and track. Not all of these are 'standard' tags in all formats it supports; in particular 'category' uses the ID3 extension tag `TXXX:TIT0`. ('group' is short for `TIT1`, 'content group'). If you know the exact tag the underlying format uses, you can also use that; for example, you can set an MP3 file's publisher with `--TPUB`.
 
 There is also a special tag, `--auto`, which is used to infer tag values from the filename. This takes, rather a tag value, a pattern to match against the path to the file. The pattern is a "sample" filename, with sections you want extracted into tags written as the tag name enclosed in square brackets, for example:
