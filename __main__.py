@@ -19,21 +19,20 @@ def utf8(str):
     return str
   return unicode(str, 'utf-8')
 
-def merge_rc_section(rc, section, defaults):
-  if rc.has_section(section):
-    for key,value in rc.items(section):
-      defaults[key] = utf8(value)
-
 def optionxform(name):
   return name.replace('-', '_')
 
-def parse_rc(file, section):
+def parse_rc(file):
   defaults = {}
-  parser = RawConfigParser()
-  parser.optionxform = optionxform
-  parser.read(file)
-  merge_rc_section(parser, 'core', defaults)
-  merge_rc_section(parser, section, defaults)
+  rc = RawConfigParser()
+  rc.optionxform = optionxform
+  rc.read(file)
+  if rc.has_section('core'):
+    parser.set_defaults(**{ k: v for (k,v) in rc.items('core') })
+  if rc.has_section('tag'):
+    mtag.subparser.set_defaults(**{ k: v for (k,v) in rc.items('tag') })
+  if rc.has_section('sort'):
+    msort.subparser.set_defaults(**{ k: v for (k,v) in rc.items('sort') })
   return defaults
 
 def main(options):
@@ -42,7 +41,6 @@ def main(options):
 if __name__ == "__main__":
   import codecs
   sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-  options = parser.parse_args()
-  parser.set_defaults(**parse_rc(os.path.expanduser('~/.morc'), options.command))
+  parse_rc(os.path.expanduser('~/.morc'))
   # re-parse with the configuration file merged in
   main(parser.parse_args())
