@@ -69,6 +69,10 @@ class TagWrapper(object):
   def track(self):
     return re.match('^([0-9]+)', self['track']).groups()[0]
 
+  @property
+  def year(self):
+    return self['date'].split('-')[0]
+
 
 class ID3Wrapper(TagWrapper):
   _wrapper = ID3

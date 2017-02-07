@@ -36,6 +36,8 @@ There is also a special tag, `--auto`, which is used to infer tag values from th
 
 Internally, it is treated as a regular expression where each `[tag]` is a nongreedy match for one or more non-'/' characters. As with tags as command line options, tags in the pattern can end with '?', in which case they will be matched, but set only if the file does not already have that tag. To match a sequence of characters without placing them in a tag, use `[]`. There is currently no support for literal `[]` characters or more sophisticated regular expression patterns.
 
+Finally, it understands the tag `year` as a special read-only alias of `date` that only returns the year part.
+
 
 ## mo sort
 
@@ -47,7 +49,8 @@ It has two enhancements over normal python formatting strings: it supports a new
 
 The complete default path for sorting, with `--prefix-both` enabled, is:
 
-    {library}/{genre}/{category?}/{group/artist/composer/performer}/{album}/
+    {library}/{genre}/{category?}/{group/artist/composer/performer}
+      /{year? - }{album}/
         {disc?}{track!d:02d} - {artist} - {title}
 
 Which is to say, it sorts by genre and optional category, then content-group (falling back to artist, then composer, and then performer if there is no content-group set), and then album, then names the files with disc number, two-digit track number, artist name, and title. (Extensions are applied automatically.) If the category name or disc number tags are missing, they are simply skipped; if any other tag is missing, it raises an error.

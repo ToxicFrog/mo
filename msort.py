@@ -36,7 +36,7 @@ subparser.add_argument('--library', type=utf8,
   default=os.path.join(os.getenv('HOME'), 'Music'))
 subparser.add_argument('--dir-name', type=utf8,
   help='pattern for destination directory; default %(default)s',
-  default='{library}/{genre}/{category?}/{group/artist/composer/performer}/{album}')
+  default='{library}/{genre}/{category?}/{group/artist/composer/performer}/{year? - }{album}')
 subparser.add_argument('--safe-paths', type=utf8, metavar='PATTERN',
   help='replace characters not normally allowed in filenames; ' +
        'understands "linux", "windows", or a list of characters; default "%(default)s"',
