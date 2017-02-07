@@ -43,7 +43,7 @@ Internally, it is treated as a regular expression where each `[tag]` is a nongre
 
 For greater control over the disposition of the files, the `--dir-name` and `--file-name` options can be specified directly. The templates they take are actually Python formatting strings[1], with keys being tags in the files being sorted, or the special tag `{library}` for the library location. There are also convenience functions `--prefix-track`, `--prefix-artist`, and `--prefix-both` to support the common use cases of wanting numbered tracks, filenames with artist and title rather than just title, or both at once. You can also use `--no-prefix` to override any default set in the configuration file (equivalent to `--file-name={title}`).
 
-It has two enhancements over normal python formatting strings: it supports a new conversion format, 'd', for converting to integer (used in the template specified by `--prefix-track`), and it treats tags ending with '?' specially. If those tags (sans '?') are not present in the file being sorted, it treats them as the empty string; if any other tag is missing, it results in an error.
+It has two enhancements over normal python formatting strings: it supports a new conversion format, 'd', for converting to integer (used in the template specified by `--prefix-track`), and it treats tags containing `?` specially. If `?` is present in the tag, the text before the `?` is taken as the tag name; if the tag is set, it outputs the contents of the tag suffixed with the text after the `?`, and if unset, it outputs nothing. So, for example, the format `{date? - }{title}` would output "1975 - T.N.T." if the `date` tag as set, and just "T.N.T." otherwise.
 
 The complete default path for sorting, with `--prefix-both` enabled, is:
 

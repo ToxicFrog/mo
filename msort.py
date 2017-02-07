@@ -99,6 +99,7 @@ class MusicPathFormatter(Formatter):
 
   def get_value(self, key, args, kwargs):
     optional = False
+    suffix = ''
     if '/' in key:
       for subkey in key.split('/'):
         try:
@@ -106,13 +107,13 @@ class MusicPathFormatter(Formatter):
         except:
           pass
       raise KeyError(key)
-    if key.endswith('?'):
-      key = key[:-1]
+    if '?' in key:
+      (key,suffix) = key.split('?')
       optional = True
     if key in kwargs:
-      return kwargs[key]
+      return kwargs[key] + suffix
     if hasattr(self._tags, key):
-      return self.make_safe(getattr(self._tags, key))
+      return self.make_safe(getattr(self._tags, key)) + suffix
     if optional:
       return ''
     raise KeyError(key)
