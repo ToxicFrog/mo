@@ -88,11 +88,19 @@ class ID3Wrapper(TagWrapper):
     'subtitle':   'TIT3',
     'track':      'TRCK',
     'filename':   'TOFN',
+    'date':       'TDRC',
   }
 
   @classmethod
   def canWrap(_, file):
     return file.endswith(".mp3")
+
+  def __getitem__(self, key):
+    key = self._tagmap.get(key, key)
+    val = self._tags[key][0]
+    if type(val) == unicode:
+      return val
+    return str(val)
 
   def __setitem__(self, key, value):
     key = self._tagmap.get(key, key)
