@@ -12,6 +12,7 @@ from mutagen.easyid3 import EasyID3
 
 import mtag
 import msort
+import mstat
 from args import parser
 
 def utf8(str):
@@ -33,6 +34,8 @@ def parse_rc(file):
     mtag.subparser.set_defaults(**{ k: v for (k,v) in rc.items('tag') })
   if rc.has_section('sort'):
     msort.subparser.set_defaults(**{ k: v for (k,v) in rc.items('sort') })
+  if rc.has_section('stat'):
+    mstat.subparser.set_defaults(**{ k: v for (k,v) in rc.items('stat') })
   return defaults
 
 def main(options):
