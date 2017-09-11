@@ -11,9 +11,10 @@ import mutagen.id3
 from mutagen.id3 import ID3,ID3NoHeaderError,Frames
 from mutagen.flac import FLAC,FLACNoHeaderError
 from mutagen.oggvorbis import OggVorbis,OggVorbisHeaderError
+from mutagen.oggopus import OggOpus,OggOpusHeaderError
 from mutagen.easymp4 import EasyMP4
 from mutagen.mp4 import error as MP4Error
-MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac" )
+MUSIC_FILE_EXTENSIONS = ( ".mp3", ".ogg", ".flac", ".m4a", ".aac", ".opus" )
 
 class TagWrapper(object):
   _tagmap = {}
@@ -143,6 +144,21 @@ class VorbisWrapper(TagWrapper):
     return file.endswith(".ogg")
 
 
+class OpusWrapper(TagWrapper):
+  _wrapper = OggOpus
+  _errortype = OggOpusHeaderError
+  _tagmap = {
+    # Guess here that Opus uses the same field names as Vorbis.
+    'disc':       'discnumber',
+    'group':      'contentgroup',
+    'track':      'tracknumber',
+  }
+
+  @classmethod
+  def canWrap(_, file):
+    return file.endswith(".opus")
+
+
 class MP4Wrapper(TagWrapper):
   _wrapper = EasyMP4
   _errortype = MP4Error
@@ -169,7 +185,7 @@ class GuessWrapper(TagWrapper):
 
 
 def getTagsForFile(file):
-  for wrapper in [FLACWrapper, VorbisWrapper, ID3Wrapper, MP4Wrapper, GuessWrapper]:
+  for wrapper in [FLACWrapper, VorbisWrapper, OpusWrapper, ID3Wrapper, MP4Wrapper, GuessWrapper]:
     if wrapper.canWrap(file):
       return wrapper(file)
   raise ValueError("No tag handler found for file '%s'")
